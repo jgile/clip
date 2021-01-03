@@ -11,7 +11,7 @@ class ClipServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/clip.php', 'clip');
+        $this->mergeConfigFrom(__DIR__.'/../config/clip.php', 'clip');
 
         $this->app->bind(Clip::class, function () {
             return new Clip();
@@ -28,8 +28,8 @@ class ClipServiceProvider extends ServiceProvider
 
     private function bootResources(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'clip');
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'clip');
     }
 
     private function bootBladeComponents(): void
@@ -50,11 +50,11 @@ class ClipServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/clip.php' => config_path('clip.php'),
+                __DIR__.'/../config/clip.php' => config_path('clip.php'),
             ], 'clip.config');
 
             $this->publishes([
-                __DIR__ . '/../resources/views' => base_path('resources/views/vendor/clip'),
+                __DIR__.'/../resources/views' => base_path('resources/views/vendor/clip'),
             ], 'clip.views');
         }
     }

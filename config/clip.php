@@ -16,7 +16,7 @@ return [
             'w' => 600,
             'h' => 400,
             'fit' => 'crop',
-        ]
+        ],
     ],
     'disk' => env('CLIP_DISK', env('FILESYSTEM_DRIVER', 'local')),
     'base_url' => env('CLIP_BASE_URL', 'clip'),

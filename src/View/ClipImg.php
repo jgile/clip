@@ -54,8 +54,7 @@ class ClipImg extends Component
         $border = false,
         $q = false,
         $fm = false
-    )
-    {
+    ) {
         $this->src = $clip->src($src)->query([
             'h' => $h,
             'w' => $w,

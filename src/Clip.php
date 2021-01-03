@@ -59,7 +59,7 @@ class Clip
      */
     public function url()
     {
-        $this->query['path'] = (string)Str::of($this->src)->afterLast($this->storageUrl . '/');
+        $this->query['path'] = (string) Str::of($this->src)->afterLast($this->storageUrl.'/');
 
         return route('clip-img', $this->query);
     }
