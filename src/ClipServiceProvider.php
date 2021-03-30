@@ -1,8 +1,9 @@
 <?php
 
-namespace JGile\Clip;
+namespace Jgile\Clip;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
 use Jgile\Clip\View\ClipImg;
@@ -11,10 +12,10 @@ class ClipServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/clip.php', 'clip');
+        $this->mergeConfigFrom(__DIR__ . '/../config/clip.php', 'clip');
 
-        $this->app->bind(Clip::class, function () {
-            return new Clip();
+        $this->app->singleton(Clip::class, function ($app) {
+            return new Clip(Storage::disk(config('clip.disk')));
         });
     }
 
@@ -28,8 +29,8 @@ class ClipServiceProvider extends ServiceProvider
 
     private function bootResources(): void
     {
-        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'clip');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'clip');
     }
 
     private function bootBladeComponents(): void
@@ -42,7 +43,7 @@ class ClipServiceProvider extends ServiceProvider
     private function bootDirectives(): void
     {
         Blade::directive('clip', function (string $expression) {
-            return "<?php echo (new \\Jgile\\Clip\\Clip($expression))->url(); ?>";
+            return "<?php echo app(\\Jgile\\Clip\\Clip::class)->url($expression); ?>";
         });
     }
 
@@ -50,11 +51,11 @@ class ClipServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/clip.php' => config_path('clip.php'),
+                __DIR__ . '/../config/clip.php' => config_path('clip.php'),
             ], 'clip.config');
 
             $this->publishes([
-                __DIR__.'/../resources/views' => base_path('resources/views/vendor/clip'),
+                __DIR__ . '/../resources/views' => base_path('resources/views/vendor/clip'),
             ], 'clip.views');
         }
     }

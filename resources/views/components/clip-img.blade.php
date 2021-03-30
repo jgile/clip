@@ -1,1 +1,1 @@
-<img src="{{ $src }}"{{ $attributes }} />
+<img src="{{ $src }}" {{ $attributes }}/>

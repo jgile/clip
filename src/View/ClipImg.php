@@ -53,9 +53,11 @@ class ClipImg extends Component
         $bg = false,
         $border = false,
         $q = false,
+        $p = false,
         $fm = false
-    ) {
-        $this->src = $clip->src($src)->query([
+    )
+    {
+        $this->src = $clip->url($src, [
             'h' => $h,
             'w' => $w,
             'fit' => $fit,
@@ -73,8 +75,9 @@ class ClipImg extends Component
             'bg' => $bg,
             'border' => $border,
             'q' => $q,
+            'p' => $p,
             'fm' => $fm,
-        ])->url();
+        ]);
     }
 
     /**

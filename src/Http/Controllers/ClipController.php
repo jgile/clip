@@ -2,30 +2,21 @@
 
 namespace Jgile\Clip\Http\Controllers;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use League\Glide\Responses\LaravelResponseFactory;
-use League\Glide\ServerFactory;
+use Jgile\Clip\Clip;
 
 class ClipController extends Controller
 {
     /**
-     * @param Filesystem $filesystem
+     * @param Clip $clip
+     * @param Request $request
      * @param $path
      * @return mixed
+     * @throws \Exception
      */
-    public function __invoke(Filesystem $filesystem, $path)
+    public function __invoke(Clip $clip, Request $request, $path)
     {
-        $server = ServerFactory::create([
-            'response' => new LaravelResponseFactory(app('request')),
-            'source' => $filesystem->getDriver(),
-            'cache' => $filesystem->getDriver(),
-            'source_path_prefix' => config('clip.source_path'),
-            'cache_path_prefix' => config('clip.cache_path'),
-            'base_url' => config('clip.base_url'),
-            'presets' => config('clip.presets'),
-        ]);
-
-        return $server->getImageResponse($path, request()->all());
+        return $clip->getImageResponse($request);
     }
 }

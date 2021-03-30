@@ -2,65 +2,92 @@
 
 namespace Jgile\Clip;
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\Request;
+use League\Glide\Responses\LaravelResponseFactory;
+use League\Glide\Server;
+use League\Glide\ServerFactory;
 
 class Clip
 {
-    protected array $query = [];
-    protected string $storageUrl;
-    protected string $src;
+    /** @var Filesystem */
+    protected Filesystem $filesystem;
 
-    public function __construct(string $src = '', $query = [])
+    /** @var Server */
+    protected Server $server;
+
+    /**
+     * Clip constructor.
+     * @param Filesystem $filesystem
+     */
+    public function __construct(Filesystem $filesystem)
     {
-        $this->storageUrl = trim(Storage::disk(config('filesystems.default'))->url(''), '/');
-        $this->query($query)->src($src);
-    }
-
-    public function src(string $src)
-    {
-        $this->src = $src;
-
-        return $this;
+        $this->filesystem = $filesystem;
     }
 
     /**
-     * Set query params by array.
-     *
-     * @param array $query
-     * @return $this
+     * @param array $config
+     * @return Server
      */
-    public function query(array $query = [])
+    public function server($config = [])
     {
-        $this->query = collect($query)->filter(function ($val) {
-            return $val !== false;
-        })->toArray();
+        if (!isset($this->server)) {
+            $this->server = ServerFactory::create(array_merge([
+                'response' => new LaravelResponseFactory(app('request')),
+                'source' => $this->filesystem->getDriver(),
+                'cache' => $this->filesystem->getDriver(),
+                'source_path_prefix' => config('clip.source_path_prefix'),
+                'cache_path_prefix' => config('clip.cache_path_prefix'),
+                'base_url' => config('clip.base_url'),
+                'presets' => config('clip.presets'),
+            ], $config));
 
-        return $this;
-    }
-
-    /**
-     * Add query parameter.
-     *
-     * @param $key
-     * @param $value
-     */
-    public function addParameter($key, $value)
-    {
-        if ($value) {
-            $this->query[$key] = $value;
+            $this->server->setGroupCacheInFolders(false);
+            $this->server->setCacheWithFileExtensions(true);
         }
+
+        return $this->server;
     }
 
     /**
-     * Get the image url.
-     *
+     * @return Filesystem
+     */
+    public function filesystem()
+    {
+        return $this->filesystem;
+    }
+
+    /**
+     * @param $src
+     * @param $query
      * @return string
      */
-    public function url()
+    public function url($src, $query)
     {
-        $this->query['path'] = (string) Str::of($this->src)->afterLast($this->storageUrl.'/');
+        $query = array_filter($query);
+        $query['path'] = $src;
 
-        return route('clip-img', $this->query);
+        return $this->filesystem()->url($this->server()->getCachePath($this->normalizePath($src), $query)) . "?" . http_build_query($query);
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function getImageResponse(Request $request)
+    {
+        return $this->server()->getImageResponse($this->normalizePath($request->get('path')), $request->all());
+    }
+
+    /**
+     * @param $path
+     * @return string|string[]
+     */
+    protected function normalizePath($path)
+    {
+        $srcPath = parse_url($path)['path'];
+        $rootPath = parse_url($this->filesystem()->url(''))['path'];
+
+        return str_replace($rootPath, '', $srcPath);
     }
 }
