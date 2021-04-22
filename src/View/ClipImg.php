@@ -8,6 +8,7 @@ use Jgile\Clip\Clip;
 
 class ClipImg extends Component
 {
+    public string $class = '';
     public string $src;
 
     /**
@@ -31,7 +32,9 @@ class ClipImg extends Component
      * @param false $bg
      * @param false $border
      * @param bool $q
+     * @param bool $p
      * @param bool $fm
+     * @param bool $round
      */
     public function __construct(
         Clip $clip,
@@ -54,9 +57,12 @@ class ClipImg extends Component
         $border = false,
         $q = false,
         $p = false,
-        $fm = false
+        $fm = false,
+        $round = false,
     )
     {
+        $this->makeClasses($round);
+
         $this->src = $clip->url($src, [
             'h' => $h,
             'w' => $w,
@@ -80,6 +86,17 @@ class ClipImg extends Component
         ]);
     }
 
+    protected function makeClasses($round)
+    {
+        $class = '';
+
+        if ($round) {
+            $class .= ' rounded-full';
+        }
+
+        $this->class = $class;
+    }
+
     /**
      * Get the view / contents that represent the component.
      *
@@ -87,6 +104,7 @@ class ClipImg extends Component
      */
     public function render()
     {
+
         return view('clip::components.clip-img');
     }
 }
