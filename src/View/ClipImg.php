@@ -10,6 +10,8 @@ class ClipImg extends Component
 {
     public string $class = '';
     public string $src;
+    public $height;
+    public $width;
 
     /**
      * ClipImg constructor.
@@ -63,6 +65,9 @@ class ClipImg extends Component
     {
         $this->makeClasses($round);
 
+        $this->height = $h;
+        $this->width = $w;
+
         $this->src = $clip->url($src, [
             'h' => $h,
             'w' => $w,
@@ -88,13 +93,9 @@ class ClipImg extends Component
 
     protected function makeClasses($round)
     {
-        $class = '';
-
         if ($round) {
-            $class .= ' rounded-full';
+            $this->class .= ' rounded-full';
         }
-
-        $this->class = $class;
     }
 
     /**
